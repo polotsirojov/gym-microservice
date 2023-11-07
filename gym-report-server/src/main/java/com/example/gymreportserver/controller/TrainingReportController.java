@@ -5,6 +5,7 @@ import com.example.gymreportserver.payload.request.ReportRequest;
 import com.example.gymreportserver.payload.response.ReportResponse;
 import com.example.gymreportserver.repository.projection.CustomTrainingReport;
 import com.example.gymreportserver.service.TrainingReportService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpEntity;
@@ -25,8 +26,8 @@ public class TrainingReportController {
     }
 
     @PostMapping
-    public HttpEntity<?> postReport(@Valid @RequestBody ReportRequest request){
-        trainingReportService.postReport(request);
+    public HttpEntity<?> postReport(@Valid @RequestBody ReportRequest request, HttpServletRequest servletRequest){
+        trainingReportService.postReport(request, servletRequest.getHeader("TransactionId"));
         return ResponseEntity.ok().build();
     }
 }

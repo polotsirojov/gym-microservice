@@ -6,7 +6,7 @@ import com.example.gymreportserver.payload.response.ReportResponse;
 import java.util.List;
 
 public interface TrainingReportService {
-    void postReport(ReportRequest request);
+    void postReport(ReportRequest request, String transactionId);
 
     List<ReportResponse> getAll();
 }
