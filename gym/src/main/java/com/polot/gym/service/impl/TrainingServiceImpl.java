@@ -141,7 +141,7 @@ public class TrainingServiceImpl implements TrainingService {
                 training.getTrainingDate(),
                 training.getTrainingDuration(),
                 ReportType.ADD
-        ));
+        ), RequestContextHolder.getTransactionId());
         return training;
     }
 
@@ -165,7 +165,7 @@ public class TrainingServiceImpl implements TrainingService {
                     training.getTrainingDate(),
                     training.getTrainingDuration(),
                     ReportType.DELETE
-            ));
+            ), RequestContextHolder.getTransactionId());
         }
         trainingRepository.deleteAllByTraineeAndTrainerIn(trainee, trainers);
     }

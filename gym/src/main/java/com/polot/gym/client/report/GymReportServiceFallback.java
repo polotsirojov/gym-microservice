@@ -14,6 +14,6 @@ public class GymReportServiceFallback implements ReportServiceClient {
     }
 
     @Override
-    public void postReport(ReportRequest request) {
+    public void postReport(ReportRequest request, String transactionId) {
     }
 }
