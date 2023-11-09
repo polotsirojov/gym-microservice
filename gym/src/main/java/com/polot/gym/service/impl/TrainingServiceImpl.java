@@ -20,6 +20,7 @@ import jakarta.persistence.TypedQuery;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Lazy;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,15 +36,17 @@ public class TrainingServiceImpl implements TrainingService {
     private final TrainerService trainerService;
     private final TrainingTypeRepository trainingTypeRepository;
     private final ReportServiceClient reportServiceClient;
+    private final JmsTemplate jmsTemplate;
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public TrainingServiceImpl(EntityManager entityManager, TrainingRepository trainingRepository, @Lazy TraineeService traineeService, @Lazy TrainerService trainerService, TrainingTypeRepository trainingTypeRepository, ReportServiceClient reportServiceClient) {
+    public TrainingServiceImpl(EntityManager entityManager, TrainingRepository trainingRepository, @Lazy TraineeService traineeService, @Lazy TrainerService trainerService, TrainingTypeRepository trainingTypeRepository, ReportServiceClient reportServiceClient, JmsTemplate jmsTemplate) {
         this.entityManager = entityManager;
         this.trainingRepository = trainingRepository;
         this.traineeService = traineeService;
         this.trainerService = trainerService;
         this.trainingTypeRepository = trainingTypeRepository;
         this.reportServiceClient = reportServiceClient;
+        this.jmsTemplate = jmsTemplate;
     }
 
     @Override
@@ -133,15 +136,16 @@ public class TrainingServiceImpl implements TrainingService {
                 .trainingType(trainer.getSpecialization())
                 .trainingDuration(request.getTrainingDuration())
                 .build());
-        reportServiceClient.postReport(new ReportRequest(
+//        jmsTemplate.convertAndSend("gym.report","test");
+        jmsTemplate.convertAndSend("gym.report", new ReportRequest(
                 training.getTrainer().getUser().getUsername(),
                 training.getTrainer().getUser().getFirstName(),
                 training.getTrainer().getUser().getLastName(),
                 training.getTrainer().getUser().getIsActive(),
-                training.getTrainingDate(),
+                training.getTrainingDate().toString(),
                 training.getTrainingDuration(),
                 ReportType.ADD
-        ), RequestContextHolder.getTransactionId());
+        ));
         return training;
     }
 
@@ -157,15 +161,15 @@ public class TrainingServiceImpl implements TrainingService {
         log.info("deleteTraineeTrainers TransactionId: {}", RequestContextHolder.getTransactionId());
         List<Training> list = trainingRepository.findAllByTraineeAndTrainerIn(trainee, trainers);
         for (Training training : list) {
-            reportServiceClient.postReport(new ReportRequest(
+            jmsTemplate.convertAndSend("gym.report", new ReportRequest(
                     training.getTrainer().getUser().getUsername(),
                     training.getTrainer().getUser().getFirstName(),
                     training.getTrainer().getUser().getLastName(),
                     training.getTrainer().getUser().getIsActive(),
-                    training.getTrainingDate(),
+                    training.getTrainingDate().toString(),
                     training.getTrainingDuration(),
                     ReportType.DELETE
-            ), RequestContextHolder.getTransactionId());
+            ));
         }
         trainingRepository.deleteAllByTraineeAndTrainerIn(trainee, trainers);
     }

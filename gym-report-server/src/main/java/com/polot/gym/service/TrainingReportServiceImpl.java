@@ -1,19 +1,19 @@
-package com.example.gymreportserver.service;
+package com.polot.gym.service;
 
-import com.example.gymreportserver.entity.TrainingReport;
-import com.example.gymreportserver.payload.constants.Month;
-import com.example.gymreportserver.payload.request.ReportRequest;
-import com.example.gymreportserver.payload.response.MonthResponse;
-import com.example.gymreportserver.payload.response.ReportResponse;
-import com.example.gymreportserver.payload.response.YearResponse;
-import com.example.gymreportserver.repository.TrainingReportRepository;
-import com.example.gymreportserver.repository.projection.CustomTrainingReport;
+import com.polot.gym.entity.TrainingReport;
+import com.polot.gym.payload.constants.Month;
+import com.polot.gym.payload.request.ReportRequest;
+import com.polot.gym.payload.response.MonthResponse;
+import com.polot.gym.payload.response.ReportResponse;
+import com.polot.gym.payload.response.YearResponse;
+import com.polot.gym.repository.TrainingReportRepository;
+import com.polot.gym.repository.projection.CustomTrainingReport;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.internal.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,16 +27,15 @@ public class TrainingReportServiceImpl implements TrainingReportService {
     private final TrainingReportRepository trainingReportRepository;
 
     @Override
-    public void postReport(ReportRequest request, String transactionId) {
-        log.info("gym report postReport TransactionId: {}, RequestBody: {}", transactionId, request);
+    public void postReport(ReportRequest request) {
         trainingReportRepository.save(TrainingReport.builder()
                 .trainerUsername(request.getTrainerUsername())
                 .trainerFirstname(request.getTrainerFirstname())
                 .trainerLastname(request.getTrainerLastname())
                 .isActive(request.getIsActive())
-                .year(request.getTrainingDate().getYear())
-                .month(Month.valueOf(request.getTrainingDate().getMonth().name()))
-                .date(request.getTrainingDate().getDayOfMonth())
+                .year(LocalDate.parse(request.getTrainingDate()).getYear())
+                .month(Month.valueOf(LocalDate.parse(request.getTrainingDate()).getMonth().name()))
+                .date(LocalDate.parse(request.getTrainingDate()).getDayOfMonth())
                 .trainingDuration(request.getTrainingDuration())
                 .type(request.getType())
                 .build());

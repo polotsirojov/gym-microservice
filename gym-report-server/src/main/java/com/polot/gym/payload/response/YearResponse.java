@@ -1,4 +1,4 @@
-package com.example.gymreportserver.payload.response;
+package com.polot.gym.payload.response;
 
 import lombok.*;
 

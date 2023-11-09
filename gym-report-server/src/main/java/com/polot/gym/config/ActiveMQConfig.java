@@ -1,6 +1,9 @@
-package com.example.gymreportserver.config;
+package com.polot.gym.config;
 
 import jakarta.jms.ConnectionFactory;
+import jakarta.jms.Queue;
+import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.jms.DefaultJmsListenerContainerFactoryConfigurer;
@@ -8,6 +11,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jms.config.DefaultJmsListenerContainerFactory;
 import org.springframework.jms.config.JmsListenerContainerFactory;
+import org.springframework.jms.core.JmsTemplate;
 import org.springframework.jms.support.converter.MappingJackson2MessageConverter;
 import org.springframework.jms.support.converter.MessageConverter;
 import org.springframework.jms.support.converter.MessageType;
@@ -20,26 +24,27 @@ public class ActiveMQConfig {
     public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFactory,
                                                     DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
+        factory.setErrorHandler(t -> {
+            System.err.println("An error occurred while processing the message: " + t.getMessage());
+        });
         configurer.configure(factory, connectionFactory);
         return factory;
     }
 
-//    @Bean
-//    public DefaultJmsListenerContainerFactory jmsListenerContainerFactory() {
-//        DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-//        factory.setConnectionFactory(connectionFactory());
-//        factory.setMessageConverter(jacksonJmsMessageConverter());
-//        factory.setErrorHandler(t -> {
-//            LOGGER.info("Handling error in listening for messages, error: " + t.getMessage());
-//        });
-//        return factory;
-//    }
-//
-//    @Bean
-//    public ActiveMQConnectionFactory connectionFactory() {
-//        ActiveMQConnectionFactory factory = new ActiveMQConnectionFactory("admin", "admin", "tcp://localhost:8161");
-//        return factory;
-//    }
+    @Bean
+    public Queue deadLetterQueue() {
+        return new ActiveMQQueue("DLQ");
+    }
+
+    @Bean
+    public JmsTemplate jmsTemplate(ConnectionFactory connectionFactory) {
+        JmsTemplate jmsTemplate = new JmsTemplate();
+        jmsTemplate.setMessageConverter(jacksonJmsMessageConverter());
+        jmsTemplate.setConnectionFactory(connectionFactory);
+        jmsTemplate.setDefaultDestination(deadLetterQueue());
+        return jmsTemplate;
+    }
+
     @Bean
     public MessageConverter jacksonJmsMessageConverter() {
         MappingJackson2MessageConverter converter = new MappingJackson2MessageConverter();

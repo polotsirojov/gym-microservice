@@ -1,7 +1,7 @@
-package com.example.gymreportserver.entity;
+package com.polot.gym.entity;
 
-import com.example.gymreportserver.payload.constants.Month;
-import com.example.gymreportserver.payload.constants.ReportType;
+import com.polot.gym.payload.constants.Month;
+import com.polot.gym.payload.constants.ReportType;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

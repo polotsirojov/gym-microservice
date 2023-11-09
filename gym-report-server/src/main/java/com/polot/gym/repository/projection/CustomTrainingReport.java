@@ -1,4 +1,4 @@
-package com.example.gymreportserver.repository.projection;
+package com.polot.gym.repository.projection;
 
 public interface CustomTrainingReport {
     String getTrainerUsername();

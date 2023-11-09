@@ -1,10 +1,8 @@
-package com.example.gymreportserver.controller;
+package com.polot.gym.controller;
 
-import com.example.gymreportserver.entity.TrainingReport;
-import com.example.gymreportserver.payload.request.ReportRequest;
-import com.example.gymreportserver.payload.response.ReportResponse;
-import com.example.gymreportserver.repository.projection.CustomTrainingReport;
-import com.example.gymreportserver.service.TrainingReportService;
+import com.polot.gym.payload.request.ReportRequest;
+import com.polot.gym.payload.response.ReportResponse;
+import com.polot.gym.service.TrainingReportService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ public class TrainingReportController {
 
     @PostMapping
     public HttpEntity<?> postReport(@Valid @RequestBody ReportRequest request, HttpServletRequest servletRequest){
-        trainingReportService.postReport(request, servletRequest.getHeader("TransactionId"));
+        trainingReportService.postReport(request);
         return ResponseEntity.ok().build();
     }
 }

@@ -1,4 +1,4 @@
-package com.example.gymreportserver.payload.constants;
+package com.polot.gym.payload.constants;
 
 public enum ReportType {
     ADD, DELETE

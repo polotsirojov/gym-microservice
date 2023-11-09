@@ -1,16 +1,16 @@
-package com.example.gymreportserver.payload.request;
+package com.polot.gym.payload.request;
 
-import com.example.gymreportserver.payload.constants.ReportType;
+import com.polot.gym.payload.constants.ReportType;
 import jakarta.validation.constraints.NotNull;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.time.LocalDate;
 
 @Getter
 @Setter
 @ToString
+@AllArgsConstructor
+@NoArgsConstructor
 public class ReportRequest {
     @NotNull
     private String trainerUsername;
@@ -21,7 +21,7 @@ public class ReportRequest {
     @NotNull
     private Boolean isActive;
     @NotNull
-    private LocalDate trainingDate;
+    private String trainingDate;
     @NotNull
     private Integer trainingDuration;
     @NotNull

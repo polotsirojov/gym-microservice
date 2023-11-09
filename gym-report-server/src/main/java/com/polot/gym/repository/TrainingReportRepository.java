@@ -1,7 +1,7 @@
-package com.example.gymreportserver.repository;
+package com.polot.gym.repository;
 
-import com.example.gymreportserver.entity.TrainingReport;
-import com.example.gymreportserver.repository.projection.CustomTrainingReport;
+import com.polot.gym.entity.TrainingReport;
+import com.polot.gym.repository.projection.CustomTrainingReport;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
