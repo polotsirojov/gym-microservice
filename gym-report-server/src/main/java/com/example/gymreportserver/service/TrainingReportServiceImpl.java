@@ -3,22 +3,16 @@ package com.example.gymreportserver.service;
 import com.example.gymreportserver.entity.TrainingReport;
 import com.example.gymreportserver.payload.constants.Month;
 import com.example.gymreportserver.payload.request.ReportRequest;
-import com.example.gymreportserver.payload.response.MonthResponse;
-import com.example.gymreportserver.payload.response.ReportResponse;
-import com.example.gymreportserver.payload.response.YearResponse;
 import com.example.gymreportserver.repository.TrainingReportRepository;
-import com.example.gymreportserver.repository.projection.CustomTrainingReport;
 import lombok.RequiredArgsConstructor;
-import org.flywaydb.core.internal.util.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,93 +23,48 @@ public class TrainingReportServiceImpl implements TrainingReportService {
     @Override
     public void postReport(ReportRequest request, String transactionId) {
         log.info("gym report postReport TransactionId: {}, RequestBody: {}", transactionId, request);
-        trainingReportRepository.save(TrainingReport.builder()
-                .trainerUsername(request.getTrainerUsername())
-                .trainerFirstname(request.getTrainerFirstname())
-                .trainerLastname(request.getTrainerLastname())
-                .isActive(request.getIsActive())
-                .year(request.getTrainingDate().getYear())
-                .month(Month.valueOf(request.getTrainingDate().getMonth().name()))
-                .date(request.getTrainingDate().getDayOfMonth())
-                .trainingDuration(request.getTrainingDuration())
-                .type(request.getType())
-                .build());
+        int year = request.getTrainingDate().getYear();
+        Month month = Month.valueOf(request.getTrainingDate().getMonth().name());
+
+        Optional<TrainingReport> trainingReportOptional = trainingReportRepository.findByTrainerUsername(request.getTrainerUsername());
+        Map<Integer, Map<String, Integer>> d = new HashMap<>();
+        Map<String, Integer> m = new HashMap<>();
+
+        if (trainingReportOptional.isEmpty()) {
+            m.put(month.name(), request.getTrainingDuration());
+            d.put(year, m);
+            trainingReportRepository.save(TrainingReport.builder()
+                    .trainerUsername(request.getTrainerUsername())
+                    .trainerFirstname(request.getTrainerFirstname())
+                    .trainerLastname(request.getTrainerLastname())
+                    .status(request.getIsActive())
+                    .years(d)
+                    .type(request.getType())
+                    .build());
+        } else {
+            d = trainingReportOptional.get().getYears();
+            if (d.containsKey(year)) {
+                m = d.get(year);
+                if (m.containsKey(month.name())) {
+                    Integer duration = m.get(month.name());
+                    m.put(month.name(), duration + request.getTrainingDuration());
+                } else {
+                    m.put(month.name(), request.getTrainingDuration());
+                }
+            } else {
+                m.put(month.name(), request.getTrainingDuration());
+                d.put(year, m);
+            }
+            TrainingReport trainingReport = trainingReportOptional.get();
+            trainingReport.setYears(d);
+            trainingReportRepository.save(trainingReport);
+        }
+
+
     }
 
     @Override
-    public List<ReportResponse> getAll() {
-        List<CustomTrainingReport> reports = trainingReportRepository.findAllByGroupBy();
-        List<ReportResponse> reportResponses = new ArrayList<>();
-        for (CustomTrainingReport report : reports) {
-            Optional<ReportResponse> first = reportResponses.stream()
-                    .filter(r -> r.getTrainerUsername().equals(report.getTrainerUsername()) &&
-                            r.getTrainerFirstname().equals(report.getTrainerFirstname()) &&
-                            r.getTrainerLastname().equals(report.getTrainerLastname()) &&
-                            r.getStatus().equals(report.getIsActive())
-                    ).findFirst();
-            if (first.isPresent()) {
-                reportResponses = reportResponses.stream()
-                        .map(r -> {
-                            if (r.getTrainerUsername().equals(report.getTrainerUsername()) &&
-                                    r.getTrainerFirstname().equals(report.getTrainerFirstname()) &&
-                                    r.getTrainerLastname().equals(report.getTrainerLastname()) &&
-                                    r.getStatus().equals(report.getIsActive())) {
-                                if (r.getYears().stream().filter(y -> y.getYear().equals(report.getYear())).findFirst().isEmpty()) {
-                                    List<YearResponse> yList = new ArrayList<>(r.getYears());
-                                    yList.add(YearResponse.builder()
-                                            .year(report.getYear())
-                                            .months(List.of(MonthResponse.builder()
-                                                    .month(report.getMonth())
-                                                    .duration(report.getDurationSummary())
-                                                    .build()))
-                                            .build());
-                                    return ReportResponse.builder()
-                                            .trainerUsername(r.getTrainerUsername())
-                                            .trainerLastname(r.getTrainerLastname())
-                                            .trainerFirstname(r.getTrainerFirstname())
-                                            .status(r.getStatus())
-                                            .years(yList)
-                                            .build();
-                                } else {
-                                    return ReportResponse.builder()
-                                            .trainerUsername(r.getTrainerUsername())
-                                            .trainerLastname(r.getTrainerLastname())
-                                            .trainerFirstname(r.getTrainerFirstname())
-                                            .status(r.getStatus())
-                                            .years(r.getYears().stream().map(y -> {
-                                                if (y.getYear().equals(report.getYear())) {
-                                                    List<MonthResponse> months = new ArrayList<>(y.getMonths());
-                                                    months.add(MonthResponse.builder()
-                                                            .month(report.getMonth())
-                                                            .duration(report.getDurationSummary())
-                                                            .build());
-                                                    y.setMonths(months);
-                                                    return y;
-                                                } else {
-                                                    return y;
-                                                }
-                                            }).collect(Collectors.toList()))
-                                            .build();
-                                }
-                            } else {
-                                return r;
-                            }
-                        }).collect(Collectors.toList());
-            } else {
-                reportResponses.add(ReportResponse.builder()
-                        .trainerUsername(report.getTrainerUsername())
-                        .trainerLastname(report.getTrainerLastname())
-                        .trainerFirstname(report.getTrainerFirstname())
-                        .status(report.getIsActive())
-                        .years(Arrays.asList(YearResponse.builder()
-                                .year(report.getYear())
-                                .months(Arrays.asList(MonthResponse.builder()
-                                        .month(report.getMonth())
-                                        .duration(report.getDurationSummary()).build()))
-                                .build()))
-                        .build());
-            }
-        }
-        return reportResponses;
+    public List<TrainingReport> getAll() {
+        return trainingReportRepository.findAll();
     }
 }

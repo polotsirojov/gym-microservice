@@ -2,8 +2,6 @@ package com.example.gymreportserver.controller;
 
 import com.example.gymreportserver.entity.TrainingReport;
 import com.example.gymreportserver.payload.request.ReportRequest;
-import com.example.gymreportserver.payload.response.ReportResponse;
-import com.example.gymreportserver.repository.projection.CustomTrainingReport;
 import com.example.gymreportserver.service.TrainingReportService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
@@ -21,12 +19,12 @@ public class TrainingReportController {
     private final TrainingReportService trainingReportService;
 
     @GetMapping
-    public HttpEntity<List<ReportResponse>> getAll(){
+    public HttpEntity<List<TrainingReport>> getAll() {
         return ResponseEntity.ok(trainingReportService.getAll());
     }
 
     @PostMapping
-    public HttpEntity<?> postReport(@Valid @RequestBody ReportRequest request, HttpServletRequest servletRequest){
+    public HttpEntity<?> postReport(@Valid @RequestBody ReportRequest request, HttpServletRequest servletRequest) {
         trainingReportService.postReport(request, servletRequest.getHeader("TransactionId"));
         return ResponseEntity.ok().build();
     }
