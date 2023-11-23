@@ -14,8 +14,6 @@ public class TraineeProfileUpdateRequest {
     @NotNull
     private String username;
     @NotNull
-    private String password;
-    @NotNull
     private String firstName;
     @NotNull
     private String lastName;

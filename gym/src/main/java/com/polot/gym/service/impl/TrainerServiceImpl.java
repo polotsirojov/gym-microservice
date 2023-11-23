@@ -132,7 +132,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public User activate(Integer trainerId, StatusRequest request) {
         log.info("TraineeService activate. data:{}, TransactionId: {}", request, RequestContextHolder.getTransactionId());
-        userService.selectByUsernameAndPassword(request.getUsername(), request.getPassword());
+        userService.selectByUsername(request.getUsername());
         Trainer trainer = trainerRepository.findById(trainerId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainer not found"));
         return userService.updateUserStatus(trainer.getUser(), true);
     }
@@ -140,7 +140,7 @@ public class TrainerServiceImpl implements TrainerService {
     @Override
     public User deActivate(Integer trainerId, StatusRequest request) {
         log.info("TraineeService deActivate. data:{}, TransactionId: {}", request, RequestContextHolder.getTransactionId());
-        userService.selectByUsernameAndPassword(request.getUsername(), request.getPassword());
+        userService.selectByUsername(request.getUsername());
         Trainer trainer = trainerRepository.findById(trainerId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainer not found"));
         return userService.updateUserStatus(trainer.getUser(), false);
     }

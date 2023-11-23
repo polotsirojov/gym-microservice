@@ -30,7 +30,7 @@ public class TraineeServiceImpl implements TraineeService {
     private final TrainingService trainingService;
     private final AuthService authService;
     private final UserSession userSession;
-    private Logger log = LoggerFactory.getLogger(this.getClass());
+    private Logger log = LoggerFactory.getLogger(TraineeServiceImpl.class);
 
     public TraineeServiceImpl(TraineeRepository traineeRepository,
                               UserService userService,
@@ -106,7 +106,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Transactional
     public TraineeProfileResponse updateProfile(TraineeProfileUpdateRequest request) {
         log.info("TraineeService updateProfile method. data: {}, TransactionId: {}", request, RequestContextHolder.getTransactionId());
-        User user = userService.selectByUsernameAndPassword(request.getUsername(), request.getPassword());
+        User user = userService.selectByUsername(request.getUsername());
         Trainee trainee = traineeRepository.findByUser(user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainee not found"));
         userService.updateUser(user, request.getFirstName(), request.getLastName(), request.getIsActive());
         trainee.setDob(request.getDob());
@@ -117,9 +117,9 @@ public class TraineeServiceImpl implements TraineeService {
 
     @Override
     @Transactional
-    public Boolean deleteProfile(String username, String password) {
-        log.info("TraineeService deleteProfile method username:{}, password:{}, TransactionId: {}", username, password, RequestContextHolder.getTransactionId());
-        User user = userService.selectByUsernameAndPassword(username, password);
+    public Boolean deleteProfile(String username) {
+        log.info("TraineeService deleteProfile method username:{}, TransactionId: {}", username, RequestContextHolder.getTransactionId());
+        User user = userService.selectByUsername(username);
         Trainee trainee = traineeRepository.findByUser(user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainee not found"));
         trainingService.deleteTraineeTrainers(trainee, List.of());
         traineeRepository.delete(trainee);
@@ -128,9 +128,9 @@ public class TraineeServiceImpl implements TraineeService {
     }
 
     @Override
-    public List<TrainingResponse> getTrainings(String username, String password, LocalDate periodFrom, LocalDate periodTo, String trainerName, Integer trainingTypeId) {
-        log.info("TraineeService getTrainings username:{}, password:{}, periodFrom:{}, periodTo:{}, trainerName:{}, trainingTypeId:{}, TransactionId: {}", username, password, periodFrom, periodTo, trainerName, trainingTypeId, RequestContextHolder.getTransactionId());
-        User user = userService.selectByUsernameAndPassword(username, password);
+    public List<TrainingResponse> getTrainings(String username, LocalDate periodFrom, LocalDate periodTo, String trainerName, Integer trainingTypeId) {
+        log.info("TraineeService getTrainings username:{}, periodFrom:{}, periodTo:{}, trainerName:{}, trainingTypeId:{}, TransactionId: {}", username, periodFrom, periodTo, trainerName, trainingTypeId, RequestContextHolder.getTransactionId());
+        User user = userService.selectByUsername(username);
         Trainee trainee = traineeRepository.findByUser(user).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainee not found"));
         return trainingService.getTraineeTrainings(trainee, periodFrom, periodTo, trainerName, trainingTypeId);
     }
@@ -145,7 +145,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public User activate(Integer traineeId, StatusRequest request) {
         log.info("TraineeService activate. data:{}, TransactionId: {}", request, RequestContextHolder.getTransactionId());
-        userService.selectByUsernameAndPassword(request.getUsername(), request.getPassword());
+        userService.selectByUsername(request.getUsername());
         Trainee trainee = traineeRepository.findById(traineeId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainee not found"));
         return userService.updateUserStatus(trainee.getUser(), true);
     }
@@ -153,7 +153,7 @@ public class TraineeServiceImpl implements TraineeService {
     @Override
     public User deActivate(Integer traineeId, StatusRequest request) {
         log.info("TraineeService deActivate. data:{}, TransactionId: {}", request, RequestContextHolder.getTransactionId());
-        userService.selectByUsernameAndPassword(request.getUsername(), request.getPassword());
+        userService.selectByUsername(request.getUsername());
         Trainee trainee = traineeRepository.findById(traineeId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Trainee not found"));
         return userService.updateUserStatus(trainee.getUser(), false);
     }

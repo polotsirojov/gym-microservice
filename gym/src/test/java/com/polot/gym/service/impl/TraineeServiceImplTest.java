@@ -117,7 +117,7 @@ class TraineeServiceImplTest {
         given(traineeRepository.findByUser(user)).willReturn(Optional.of(trainee));
         given(userService.updateUser(user, "firstName", "lastName", true)).willReturn(user);
         given(traineeRepository.save(any())).willReturn(trainee);
-        TraineeProfileResponse traineeProfileResponse = traineeService.updateProfile(new TraineeProfileUpdateRequest(username, password, "firstName", "lastName", LocalDate.now(), "address", true));
+        TraineeProfileResponse traineeProfileResponse = traineeService.updateProfile(new TraineeProfileUpdateRequest(username, "firstName", "lastName", LocalDate.now(), "address", true));
         assertThat(traineeProfileResponse).isNotNull();
     }
 
@@ -130,17 +130,17 @@ class TraineeServiceImplTest {
         userService.deleteUser(user);
         verify(userService, times(1)).deleteUser(user);
 
-        Boolean value = traineeService.deleteProfile(username, password);
+        Boolean value = traineeService.deleteProfile(username);
         assertThat(value).isTrue();
     }
 
     @Test
     void getTrainings() {
-        given(userService.selectByUsernameAndPassword(username, password)).willReturn(user);
+        given(userService.selectByUsername(username)).willReturn(user);
         given(traineeRepository.findByUser(user)).willReturn(Optional.of(trainee));
         given(trainingService.getTraineeTrainings(trainee, null, null, null, null)).willReturn(Collections.emptyList());
 
-        List<TrainingResponse> trainings = traineeService.getTrainings(username, password, null, null, null, null);
+        List<TrainingResponse> trainings = traineeService.getTrainings(username, null, null, null, null);
 
         assertThat(trainings.size()).isEqualTo(0);
     }
@@ -155,20 +155,20 @@ class TraineeServiceImplTest {
 
     @Test
     void activate() {
-        given(userService.selectByUsernameAndPassword(username, password)).willReturn(user);
+        given(userService.selectByUsername(username)).willReturn(user);
         given(traineeRepository.findById(1)).willReturn(Optional.of(trainee));
         given(userService.updateUserStatus(user, true)).willReturn(user);
-        User user1 = traineeService.activate(1, new StatusRequest(username, password, true));
+        User user1 = traineeService.activate(1, new StatusRequest(username));
 
         assertThat(user1.getIsActive()).isTrue();
     }
 
     @Test
     void deactivate() {
-        given(userService.selectByUsernameAndPassword(username, password)).willReturn(user);
+        given(userService.selectByUsername(username)).willReturn(user);
         given(traineeRepository.findById(1)).willReturn(Optional.of(trainee));
         given(userService.updateUserStatus(user, false)).willReturn(inActiveUser);
-        User user1 = traineeService.deActivate(1, new StatusRequest(username, password, false));
+        User user1 = traineeService.deActivate(1, new StatusRequest(username));
 
         assertThat(user1.getIsActive()).isFalse();
     }

@@ -43,18 +43,18 @@ public class TraineeController {
     }
 
     @DeleteMapping
-    public HttpEntity<Void> deleteProfile(@RequestParam String username, @RequestParam String password) {
-        traineeService.deleteProfile(username, password);
+    public HttpEntity<Void> deleteProfile(@RequestParam String username) {
+        traineeService.deleteProfile(username);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("trainings")
-    public HttpEntity<List<TrainingResponse>> getTrainings(@RequestParam String username, @RequestParam String password,
+    public HttpEntity<List<TrainingResponse>> getTrainings(@RequestParam String username,
                                                            @RequestParam(required = false) LocalDate periodFrom,
                                                            @RequestParam(required = false) LocalDate periodTo,
                                                            @RequestParam(required = false) String trainerName,
                                                            @RequestParam(required = false) Integer trainingTypeId) {
-        return ResponseEntity.ok(traineeService.getTrainings(username, password, periodFrom, periodTo, trainerName, trainingTypeId));
+        return ResponseEntity.ok(traineeService.getTrainings(username, periodFrom, periodTo, trainerName, trainingTypeId));
     }
 
     @PatchMapping("activate/{traineeId}")

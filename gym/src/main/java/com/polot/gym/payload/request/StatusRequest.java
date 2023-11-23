@@ -11,8 +11,4 @@ import lombok.NoArgsConstructor;
 public class StatusRequest {
     @NotNull
     private String username;
-    @NotNull
-    private String password;
-    @NotNull
-    private Boolean isActive;
 }

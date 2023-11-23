@@ -18,9 +18,9 @@ public interface TraineeService {
 
     TraineeProfileResponse updateProfile(TraineeProfileUpdateRequest request);
 
-    Boolean deleteProfile(String username, String password);
+    Boolean deleteProfile(String username);
 
-    List<TrainingResponse> getTrainings(String username, String password, LocalDate periodFrom, LocalDate periodTo, String trainerName, Integer trainingTypeId);
+    List<TrainingResponse> getTrainings(String username, LocalDate periodFrom, LocalDate periodTo, String trainerName, Integer trainingTypeId);
 
     Trainee getByUsername(String traineeUsername);
 

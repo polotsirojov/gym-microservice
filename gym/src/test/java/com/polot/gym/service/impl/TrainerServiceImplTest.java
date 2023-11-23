@@ -153,20 +153,20 @@ class TrainerServiceImplTest {
 
     @Test
     void activate() {
-        given(userService.selectByUsernameAndPassword(username, password)).willReturn(user);
+        given(userService.selectByUsername(username)).willReturn(user);
         given(trainerRepository.findById(1)).willReturn(Optional.of(trainer));
         given(userService.updateUserStatus(user, true)).willReturn(user);
-        User user1 = trainerService.activate(1,new StatusRequest(username, password, true));
+        User user1 = trainerService.activate(1,new StatusRequest(username));
 
         assertThat(user1.getIsActive()).isTrue();
     }
 
     @Test
     void deActivate() {
-        given(userService.selectByUsernameAndPassword(username, password)).willReturn(user);
+        given(userService.selectByUsername(username)).willReturn(user);
         given(trainerRepository.findById(1)).willReturn(Optional.of(trainer));
         given(userService.updateUserStatus(user, false)).willReturn(inActiveUser);
-        User user1 = trainerService.deActivate(1,new StatusRequest(username, password, false));
+        User user1 = trainerService.deActivate(1,new StatusRequest(username));
 
         assertThat(user1.getIsActive()).isFalse();
     }
