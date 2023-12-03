@@ -3,10 +3,7 @@ package com.polot.gym.entity;
 import com.polot.gym.payload.constants.Month;
 import com.polot.gym.payload.constants.ReportType;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 
 @Getter
@@ -15,6 +12,7 @@ import lombok.Setter;
 @Table(name = "training_report")
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class TrainingReport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -35,7 +33,7 @@ public class TrainingReport {
     @Column(nullable = false)
     private Integer year;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
     private Month month;
 
@@ -45,7 +43,7 @@ public class TrainingReport {
     @Column(nullable = false)
     private Integer trainingDuration;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
     private ReportType type;
 }

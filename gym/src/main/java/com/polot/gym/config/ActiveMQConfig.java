@@ -2,7 +2,6 @@ package com.polot.gym.config;
 
 import jakarta.jms.ConnectionFactory;
 import jakarta.jms.Queue;
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.apache.activemq.command.ActiveMQQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,9 +23,7 @@ public class ActiveMQConfig {
     public JmsListenerContainerFactory<?> myFactory(ConnectionFactory connectionFactory,
                                                     DefaultJmsListenerContainerFactoryConfigurer configurer) {
         DefaultJmsListenerContainerFactory factory = new DefaultJmsListenerContainerFactory();
-        factory.setErrorHandler(t -> {
-            System.err.println("An error occurred while processing the message: " + t.getMessage());
-        });
+        factory.setErrorHandler(t -> LOGGER.error("An error occurred while processing the message: {}", t.getMessage()));
         configurer.configure(factory, connectionFactory);
         return factory;
     }

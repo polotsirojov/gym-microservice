@@ -126,7 +126,8 @@ public class TrainingServiceImpl implements TrainingService {
 
     @Override
     public Training create(CreateTrainingRequest request) {
-        log.info("TrainingService create data:{}, TransactionId: {}", request, RequestContextHolder.getTransactionId());
+        String transactionId = RequestContextHolder.getTransactionId();
+        log.info("TrainingService create data:{}, TransactionId: {}", request, transactionId);
         Trainer trainer = trainerService.getByUsername(request.getTrainerUsername());
         Training training = trainingRepository.save(Training.builder()
                 .trainee(traineeService.getByUsername(request.getTraineeUsername()))
@@ -145,7 +146,10 @@ public class TrainingServiceImpl implements TrainingService {
                 training.getTrainingDate().toString(),
                 training.getTrainingDuration(),
                 ReportType.ADD
-        ));
+        ), m -> {
+            m.setStringProperty("transactionId", transactionId);
+            return m;
+        });
         return training;
     }
 
