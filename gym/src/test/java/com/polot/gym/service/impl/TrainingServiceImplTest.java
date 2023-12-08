@@ -1,5 +1,6 @@
 package com.polot.gym.service.impl;
 
+import com.polot.gym.client.report.ReportServiceClient;
 import com.polot.gym.config.RequestContextHolder;
 import com.polot.gym.entity.*;
 import com.polot.gym.entity.enums.Role;
@@ -41,6 +42,8 @@ class TrainingServiceImplTest {
     private TrainerService trainerService;
     @Mock
     private TrainingTypeRepository trainingTypeRepository;
+    @Mock
+    private ReportServiceClient reportServiceClient;
     @InjectMocks
     private TrainingServiceImpl trainingService;
 
@@ -59,7 +62,7 @@ class TrainingServiceImplTest {
     void setUp() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         RequestContextHolder.setRequest(request);
-        trainingService = new TrainingServiceImpl(entityManager, trainingRepository, traineeService, trainerService, trainingTypeRepository);
+        trainingService = new TrainingServiceImpl(entityManager, trainingRepository, traineeService, trainerService, trainingTypeRepository, reportServiceClient);
         trainingType = new TrainingType(1L, "type");
         trainerUser = User.builder()
                 .id(1L)
