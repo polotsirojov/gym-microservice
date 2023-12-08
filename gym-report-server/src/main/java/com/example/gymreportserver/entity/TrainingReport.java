@@ -19,7 +19,9 @@ public class TrainingReport {
     private String id;
     @Indexed(unique = true)
     private String trainerUsername;
+    @Indexed
     private String trainerFirstname;
+    @Indexed
     private String trainerLastname;
     private Boolean status;
     private Map<Integer, Map<String, Integer>> years;
