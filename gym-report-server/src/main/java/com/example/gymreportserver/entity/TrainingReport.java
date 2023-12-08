@@ -3,6 +3,7 @@ package com.example.gymreportserver.entity;
 import com.example.gymreportserver.payload.constants.ReportType;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
 public class TrainingReport {
     @Id
     private String id;
+    @Indexed(unique = true)
     private String trainerUsername;
     private String trainerFirstname;
     private String trainerLastname;
