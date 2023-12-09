@@ -27,5 +27,5 @@ public interface TrainingReportRepository extends JpaRepository<TrainingReport, 
                      t.year,
                      t.month
             """)
-    List<CustomTrainingReport> findAllByGroupBy();
+    List<CustomTrainingReport> findAllCustomTrainingReportsSummary();
 }

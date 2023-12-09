@@ -43,7 +43,7 @@ public class TrainingReportServiceImpl implements TrainingReportService {
 
     @Override
     public List<ReportResponse> getAll() {
-        List<CustomTrainingReport> reports = trainingReportRepository.findAllByGroupBy();
+        List<CustomTrainingReport> reports = trainingReportRepository.findAllCustomTrainingReportsSummary();
         List<ReportResponse> reportResponses = new ArrayList<>();
         for (CustomTrainingReport report : reports) {
             Optional<ReportResponse> first = reportResponses.stream()
