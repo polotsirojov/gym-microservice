@@ -12,14 +12,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
 
@@ -36,21 +34,25 @@ class TrainingReportServiceImplTest {
     @BeforeEach
     void setUp() {
         trainingReportService = new TrainingReportServiceImpl(trainingReportRepository);
-        trainingReport = new TrainingReport(trainerUsername, "test", "test", true, Map.of(2023, Map.of("DECEMBER", 2)), ReportType.ADD);
+        Map<String, Integer> month = new HashMap<>();
+        month.put("DECEMBER", 2);
+        Map<Integer, Map<String, Integer>> years = new HashMap<>();
+        years.put(2023, month);
+        trainingReport = new TrainingReport(trainerUsername, "test", "test", true, years, ReportType.ADD);
     }
 
     @Test
     void postReport() {
-        given(trainingReportRepository.findByTrainerUsername(trainerUsername)).willReturn(Optional.empty());
+        given(trainingReportRepository.findByTrainerUsername(trainerUsername)).willReturn(Optional.of(trainingReport));
         trainingReportService.postReport(new ReportRequest(trainerUsername, "test", "test", true, LocalDate.now(), 2, ReportType.ADD), "transactionId");
         verify(trainingReportRepository).findByTrainerUsername(trainerUsername);
-        verify(trainingReportRepository).save(any());
+        verify(trainingReportRepository).save(trainingReport);
     }
 
     @Test
     void getAll() {
         given(trainingReportRepository.findAll()).willReturn(List.of(trainingReport));
         List<TrainingReport> trainingReports = trainingReportService.getAll();
-        assertThat(trainingReports).isNotNull();
+        assertThat(trainingReports.size()).isEqualTo(1);
     }
 }
