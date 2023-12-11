@@ -16,16 +16,16 @@ public interface TrainingReportRepository extends JpaRepository<TrainingReport, 
                    t.trainerFirstname as trainerFirstname,
                    t.trainerLastname as trainerLastname,
                    t.isActive as isActive,
-                   t.year as year,
-                   t.month as month,
+                   t.reportYear as year,
+                   t.reportMonth as month,
                    sum(t.trainingDuration) as durationSummary
             from TrainingReport t
             group by t.trainerUsername,
                      t.trainerFirstname,
                      t.trainerLastname,
                      t.isActive,
-                     t.year,
-                     t.month
+                     t.reportYear,
+                     t.reportMonth
             """)
     List<CustomTrainingReport> findAllCustomTrainingReportsSummary();
 }

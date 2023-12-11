@@ -13,6 +13,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class TrainingReport {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -31,19 +32,19 @@ public class TrainingReport {
     private Boolean isActive;
 
     @Column(nullable = false)
-    private Integer year;
+    private Integer reportYear;
 
     @Column(nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
-    private Month month;
+    private Month reportMonth;
 
     @Column(nullable = false)
-    private Integer date;
+    private Integer reportDate;
 
     @Column(nullable = false)
     private Integer trainingDuration;
 
     @Column(nullable = false, columnDefinition = "varchar(255)")
     @Enumerated(EnumType.STRING)
-    private ReportType type;
+    private ReportType reportType;
 }
