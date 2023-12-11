@@ -33,17 +33,17 @@ public class TrainingReportServiceImpl implements TrainingReportService {
                 .trainerFirstname(request.getTrainerFirstname())
                 .trainerLastname(request.getTrainerLastname())
                 .isActive(request.getIsActive())
-                .year(LocalDate.parse(request.getTrainingDate()).getYear())
-                .month(Month.valueOf(LocalDate.parse(request.getTrainingDate()).getMonth().name()))
-                .date(LocalDate.parse(request.getTrainingDate()).getDayOfMonth())
+                .reportYear(LocalDate.parse(request.getTrainingDate()).getYear())
+                .reportMonth(Month.valueOf(LocalDate.parse(request.getTrainingDate()).getMonth().name()))
+                .reportDate(LocalDate.parse(request.getTrainingDate()).getDayOfMonth())
                 .trainingDuration(request.getTrainingDuration())
-                .type(request.getType())
+                .reportType(request.getType())
                 .build());
     }
 
     @Override
     public List<ReportResponse> getAll() {
-        List<CustomTrainingReport> reports = trainingReportRepository.findAllByGroupBy();
+        List<CustomTrainingReport> reports = trainingReportRepository.findAllCustomTrainingReportsSummary();
         List<ReportResponse> reportResponses = new ArrayList<>();
         for (CustomTrainingReport report : reports) {
             Optional<ReportResponse> first = reportResponses.stream()

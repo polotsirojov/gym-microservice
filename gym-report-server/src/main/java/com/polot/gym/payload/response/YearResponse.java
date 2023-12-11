@@ -9,6 +9,7 @@ import java.util.List;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class YearResponse {
     private Integer year;
     private List<MonthResponse> months;
