@@ -1,6 +1,5 @@
 package com.polot.gym.service.impl;
 
-import com.polot.gym.client.report.ReportServiceClient;
 import com.polot.gym.config.RequestContextHolder;
 import com.polot.gym.entity.Trainee;
 import com.polot.gym.entity.Trainer;
@@ -35,17 +34,15 @@ public class TrainingServiceImpl implements TrainingService {
     private final TraineeService traineeService;
     private final TrainerService trainerService;
     private final TrainingTypeRepository trainingTypeRepository;
-    private final ReportServiceClient reportServiceClient;
     private final JmsTemplate jmsTemplate;
     private Logger log = LoggerFactory.getLogger(this.getClass());
 
-    public TrainingServiceImpl(EntityManager entityManager, TrainingRepository trainingRepository, @Lazy TraineeService traineeService, @Lazy TrainerService trainerService, TrainingTypeRepository trainingTypeRepository, ReportServiceClient reportServiceClient, JmsTemplate jmsTemplate) {
+    public TrainingServiceImpl(EntityManager entityManager, TrainingRepository trainingRepository, @Lazy TraineeService traineeService, @Lazy TrainerService trainerService, TrainingTypeRepository trainingTypeRepository, JmsTemplate jmsTemplate) {
         this.entityManager = entityManager;
         this.trainingRepository = trainingRepository;
         this.traineeService = traineeService;
         this.trainerService = trainerService;
         this.trainingTypeRepository = trainingTypeRepository;
-        this.reportServiceClient = reportServiceClient;
         this.jmsTemplate = jmsTemplate;
     }
 
