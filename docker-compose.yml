@@ -1,0 +1,89 @@
+version: '3'
+
+services:
+  gym-main-service:
+    depends_on:
+      - postgres-main
+    build:
+      context: ./gym
+      dockerfile: ./Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-main:5434/gym_dev
+      SERVER_PORT: 81
+      SPRING_ACTIVEMQ_BROKER-URL: tcp://activemq:61616
+    ports:
+      - "81:81"
+    networks:
+      - gym-main-network
+
+  gym-report-service:
+    depends_on:
+      - postgres-report
+    build:
+      context: ./gym-report-server
+      dockerfile: ./Dockerfile
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres-report:5433/gym_report
+      SERVER_PORT: 82
+      SPRING_ACTIVEMQ_BROKER-URL: tcp://activemq:61616
+    ports:
+      - "82:82"
+    networks:
+      - gym-report-network
+
+  postgres-main:
+    image: postgres:latest
+    ports:
+      - "5434:5434"
+    environment:
+      PGPORT: 5434
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: gym_dev
+    volumes:
+      - gym-main-data:/var/lib/postgresql/data
+    networks:
+      - gym-main-network
+
+  postgres-report:
+    container_name: postgres-report
+    image: postgres:latest
+    ports:
+      - "5433:5433"
+    environment:
+      PGPORT: 5433
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root123
+      POSTGRES_DB: gym_report
+    volumes:
+      - gym-report-data:/var/lib/postgresql/data
+    networks:
+      - gym-report-network
+
+  activemq:
+    image: rmohr/activemq:latest
+    ports:
+      - "61616:61616"  # OpenWire
+      - "8161:8161"    # Web Console
+      - "61613:61613"  # Stomp
+      - "1883:1883"    # MQTT
+    environment:
+      ACTIVEMQ_ADMIN_LOGIN: admin
+      ACTIVEMQ_ADMIN_PASSWORD: admin
+      ACTIVEMQ_USERS: admin:admin,user:password
+    volumes:
+      - activemq-data:/var/lib/activemq
+    networks:
+      - gym-report-network
+      - gym-main-network
+
+networks:
+  gym-main-network:
+    driver: bridge
+  gym-report-network:
+    driver: bridge
+
+volumes:
+  gym-main-data:
+  gym-report-data:
+  activemq-data:

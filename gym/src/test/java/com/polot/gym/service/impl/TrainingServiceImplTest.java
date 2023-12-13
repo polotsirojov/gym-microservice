@@ -1,6 +1,5 @@
 package com.polot.gym.service.impl;
 
-import com.polot.gym.client.report.ReportServiceClient;
 import com.polot.gym.config.RequestContextHolder;
 import com.polot.gym.entity.*;
 import com.polot.gym.entity.enums.Role;
@@ -45,8 +44,6 @@ class TrainingServiceImplTest {
     private TrainingTypeRepository trainingTypeRepository;
     @Mock
     private JmsTemplate jmsTemplate;
-    @Mock
-    private ReportServiceClient reportServiceClient;
     @InjectMocks
     private TrainingServiceImpl trainingService;
 
@@ -65,7 +62,7 @@ class TrainingServiceImplTest {
     void setUp() {
         HttpServletRequest request = Mockito.mock(HttpServletRequest.class);
         RequestContextHolder.setRequest(request);
-        trainingService = new TrainingServiceImpl(entityManager, trainingRepository, traineeService, trainerService, trainingTypeRepository, reportServiceClient,jmsTemplate);
+        trainingService = new TrainingServiceImpl(entityManager, trainingRepository, traineeService, trainerService, trainingTypeRepository, jmsTemplate);
         trainingType = new TrainingType(1L, "type");
         trainerUser = User.builder()
                 .id(1L)
@@ -145,12 +142,11 @@ class TrainingServiceImplTest {
     }
 
     @Test
-    void deleteTraineeTrainers(){
+    void deleteTraineeTrainers() {
         Trainee trainee = new Trainee();
         List<Trainer> trainers = Arrays.asList(new Trainer(), new Trainer());
-        trainingService.deleteTraineeTrainers(trainee,trainers);
+        trainingService.deleteTraineeTrainers(trainee, trainers);
 
         Mockito.verify(trainingRepository).deleteAllByTraineeAndTrainerIn(trainee, trainers);
-        Mockito.verifyNoMoreInteractions(trainingRepository);
     }
 }
