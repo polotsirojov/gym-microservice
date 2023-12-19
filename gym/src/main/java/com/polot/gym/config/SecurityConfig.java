@@ -84,7 +84,7 @@ public class SecurityConfig {
                 .authenticationEntryPoint(
                         (request, response, authException)
                                 -> response.sendError(
-                                response.getStatus(),
+                                HttpServletResponse.SC_UNAUTHORIZED,
                                 authException.getLocalizedMessage()
                         )
                 )

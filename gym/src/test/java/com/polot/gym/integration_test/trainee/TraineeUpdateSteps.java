@@ -5,6 +5,7 @@ import com.polot.gym.entity.enums.Role;
 import com.polot.gym.payload.request.StatusRequest;
 import com.polot.gym.payload.request.TraineeProfileUpdateRequest;
 import com.polot.gym.payload.response.TraineeProfileResponse;
+import com.polot.gym.payload.response.TrainingResponse;
 import com.polot.gym.service.impl.JwtService;
 import io.cucumber.datatable.DataTable;
 import io.cucumber.java.en.And;
@@ -13,11 +14,13 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -33,6 +36,7 @@ public class TraineeUpdateSteps {
     private int responseCode;
     private String username = "john123.doe";
     private TraineeProfileUpdateRequest updateRequest;
+    private List<TrainingResponse> trainingResponseList;
 
     @Given("the user is authenticated as a trainee")
     public void givenUserIsAuthenticatedAsTrainee() {
@@ -49,6 +53,7 @@ public class TraineeUpdateSteps {
         updateRequest.setFirstName(profileData.get("firstName"));
         updateRequest.setLastName(profileData.get("lastName"));
         updateRequest.setAddress(profileData.get("address"));
+        updateRequest.setDob(LocalDate.parse(profileData.get("dob")));
         updateRequest.setIsActive(Boolean.valueOf(profileData.get("isActive")));
     }
 
@@ -113,7 +118,10 @@ public class TraineeUpdateSteps {
         HttpEntity<String> request = new HttpEntity<>(headers);
         List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
         Map<String, String> profileData = rows.get(0);
-        responseCode = restTemplate.exchange(url + "?username=" + profileData.get("username"), HttpMethod.GET, request, String.class).getStatusCode().value();
+        ResponseEntity<List<TrainingResponse>> responseEntity = restTemplate.exchange(url + "?username=" + profileData.get("username"), HttpMethod.GET, request, new ParameterizedTypeReference<>() {
+        });
+        responseCode = responseEntity.getStatusCode().value();
+        trainingResponseList = responseEntity.getBody();
     }
 
     @When("the client sends a GET request to {string} without any filters")
@@ -132,9 +140,41 @@ public class TraineeUpdateSteps {
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Authorization", "Bearer " + jwtToken);
-        HttpEntity<StatusRequest> request = new HttpEntity<>(new StatusRequest(data.get("username")),headers);
+        HttpEntity<StatusRequest> request = new HttpEntity<>(new StatusRequest(data.get("username")), headers);
 
         responseCode = restTemplate.exchange(url, HttpMethod.PATCH, request, Void.class).getStatusCode().value();
     }
 
+    @When("the client sends a PUT request to {string} without token")
+    public void theClientSendsAPUTRequestToWithoutToken(String url) {
+        response = restTemplate.exchange(url, HttpMethod.PUT, null, TraineeProfileResponse.class);
+        responseCode = response.getStatusCode().value();
+    }
+
+    @And("the client sends a GET request to {string} with the following filters and without token:")
+    public void theClientSendsAGETRequestToWithTheFollowingFiltersAndWithoutToken(String url, DataTable dataTable) {
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> profileData = rows.get(0);
+        responseCode = restTemplate.exchange(url + "?username=" + profileData.get("username"), HttpMethod.GET, null, String.class).getStatusCode().value();
+    }
+
+    @Then("response should contain list of data")
+    public void responseShouldContainListOfData() {
+        assertThat(trainingResponseList.size()).isEqualTo(1);
+        TrainingResponse training = trainingResponseList.get(0);
+        assertThat(training.getName()).isEqualTo("running");
+        assertThat(training.getDate()).isEqualTo(LocalDate.of(2023, 12, 12));
+        assertThat(training.getType().getName()).isEqualTo("type 1");
+        assertThat(training.getTrainerName()).isEqualTo("test test");
+    }
+
+    @When("the client sends a PATCH request to activate-deactivate {string} without token")
+    public void theClientSendsAPATCHRequestToActivateDeactivateWithoutToken(String url, DataTable dataTable) {
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> data = rows.get(0);
+
+        HttpEntity<StatusRequest> request = new HttpEntity<>(new StatusRequest(data.get("username")));
+
+        responseCode = restTemplate.exchange(url, HttpMethod.PATCH, request, Void.class).getStatusCode().value();
+    }
 }
