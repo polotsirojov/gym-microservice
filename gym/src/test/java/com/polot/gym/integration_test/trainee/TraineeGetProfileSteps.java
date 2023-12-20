@@ -11,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.*;
 
+import java.time.LocalDate;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TraineeGetProfileSteps {
@@ -21,6 +23,10 @@ public class TraineeGetProfileSteps {
     private String jwtToken;
     private ResponseEntity<TraineeProfileResponse> responseGetProfile;
     private String username = "john123.doe";
+    private String firstName = "john123";
+    private String lastName = "doe";
+    private LocalDate dob = LocalDate.of(2023, 11, 22);
+    private String address = "address";
 
     @Given("an authenticated trainee")
     public void givenUserIsAuthenticatedAsTrainee() {
@@ -39,7 +45,19 @@ public class TraineeGetProfileSteps {
 
     @Then("the response body should contain the trainee's profile details")
     public void thenProfileDetailsShouldNotNull() {
-        assertThat(responseGetProfile.getBody().getFirstName()).isNotNull();
-        assertThat(responseGetProfile.getBody().getLastName()).isNotNull();
+        assertThat(responseGetProfile.getBody().getFirstName()).isEqualTo(firstName);
+        assertThat(responseGetProfile.getBody().getLastName()).isEqualTo(lastName);
+        assertThat(responseGetProfile.getBody().getDob()).isEqualTo(dob);
+    }
+
+    @When("the client sends a GET request to {string} without token")
+    public void theClientSendsAGETRequestToWithoutToken(String url) {
+        responseGetProfile = restTemplate.getForEntity(url, TraineeProfileResponse.class);
+        System.out.println(responseGetProfile.getBody());
+    }
+
+    @Then("get profile response status code should be {int}")
+    public void thenResponseStatusCodeShouldBe(int expectedStatusCode) {
+        assertThat(responseGetProfile.getStatusCode().value()).isEqualTo(expectedStatusCode);
     }
 }

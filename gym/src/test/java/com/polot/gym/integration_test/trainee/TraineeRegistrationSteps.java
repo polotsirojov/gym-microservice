@@ -22,6 +22,7 @@ public class TraineeRegistrationSteps {
     private TestRestTemplate restTemplate;
     private TraineeRegisterRequest registerRequest;
     private ResponseEntity<UsernamePasswordResponse> responseRegTrainee;
+    private String username = "john123.doe";
 
     @Given("a trainee registration request with the following details:")
     public void givenTraineeRegistrationRequest(DataTable dataTable) {
@@ -29,8 +30,12 @@ public class TraineeRegistrationSteps {
         Map<String, String> data = rows.get(0);
 
         registerRequest = new TraineeRegisterRequest();
-        registerRequest.setFirstName(data.get("firstName"));
-        registerRequest.setLastName(data.get("lastName"));
+        if (data.containsKey("firstName")) {
+            registerRequest.setFirstName(data.get("firstName"));
+        }
+        if (data.containsKey("lastName")) {
+            registerRequest.setLastName(data.get("lastName"));
+        }
 
         if (data.containsKey("dob")) {
             registerRequest.setDob(LocalDate.parse(data.get("dob")));
@@ -44,7 +49,6 @@ public class TraineeRegistrationSteps {
     @When("the client sends a POST request to {string}")
     public void whenClientSendsPostRequest(String url) {
         responseRegTrainee = restTemplate.postForEntity(url, registerRequest, UsernamePasswordResponse.class);
-        assertThat(responseRegTrainee.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Then("the response status code should be {int}")
@@ -54,7 +58,7 @@ public class TraineeRegistrationSteps {
 
     @Then("the response body should contain the trainee's username and password")
     public void thenResponseBodyShouldContainTraineeDetails() {
-        assertThat(responseRegTrainee.getBody().getUsername()).isNotNull();
+        assertThat(responseRegTrainee.getBody().getUsername()).startsWith(username);
         assertThat(responseRegTrainee.getBody().getPassword()).isNotNull();
     }
 

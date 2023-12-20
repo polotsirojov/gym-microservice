@@ -14,7 +14,7 @@ import org.springframework.test.context.ActiveProfiles;
 @CucumberOptions(features = "src/test/resources")
 @CucumberContextConfiguration
 @SpringBootTest(classes = GymApplication.class, webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-//@ActiveProfiles("test")
+@ActiveProfiles("test")
 public class TestRunner {
     @Bean
     public TestRestTemplate testRestTemplate() {
