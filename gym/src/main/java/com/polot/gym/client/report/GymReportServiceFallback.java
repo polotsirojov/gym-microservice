@@ -1,7 +1,7 @@
 package com.polot.gym.client.report;
 
 import com.polot.gym.payload.request.ReportRequest;
-import com.polot.gym.payload.response.ReportResponse;
+import com.polot.gym.payload.response.TrainingReport;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -9,7 +9,7 @@ import java.util.List;
 @Component
 public class GymReportServiceFallback implements ReportServiceClient {
     @Override
-    public List<ReportResponse> getAll() {
+    public List<TrainingReport> getAll(String token) {
         return List.of();
     }
 

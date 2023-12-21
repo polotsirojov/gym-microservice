@@ -1,7 +1,7 @@
 package com.polot.gym.client.report;
 
 import com.polot.gym.payload.request.ReportRequest;
-import com.polot.gym.payload.response.ReportResponse;
+import com.polot.gym.payload.response.TrainingReport;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -16,7 +16,7 @@ import java.util.List;
 public interface ReportServiceClient {
 
     @GetMapping("/api/v1/report")
-    List<ReportResponse> getAll();
+    List<TrainingReport> getAll(@RequestHeader("Authorization") String token);
 
     @PostMapping("/api/v1/report")
     @CircuitBreaker(name = "myCircuitBreaker", fallbackMethod = "fallbackMethod")

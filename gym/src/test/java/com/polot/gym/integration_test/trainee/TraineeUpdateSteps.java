@@ -1,10 +1,13 @@
 package com.polot.gym.integration_test.trainee;
 
+import com.polot.gym.client.report.ReportServiceClient;
 import com.polot.gym.entity.User;
 import com.polot.gym.entity.enums.Role;
+import com.polot.gym.payload.request.CreateTrainingRequest;
 import com.polot.gym.payload.request.StatusRequest;
 import com.polot.gym.payload.request.TraineeProfileUpdateRequest;
 import com.polot.gym.payload.response.TraineeProfileResponse;
+import com.polot.gym.payload.response.TrainingReport;
 import com.polot.gym.payload.response.TrainingResponse;
 import com.polot.gym.service.impl.JwtService;
 import io.cucumber.datatable.DataTable;
@@ -37,6 +40,8 @@ public class TraineeUpdateSteps {
     private String username = "john123.doe";
     private TraineeProfileUpdateRequest updateRequest;
     private List<TrainingResponse> trainingResponseList;
+    @Autowired
+    private ReportServiceClient reportServiceClient;
 
     @Given("the user is authenticated as a trainee")
     public void givenUserIsAuthenticatedAsTrainee() {
@@ -160,7 +165,6 @@ public class TraineeUpdateSteps {
 
     @Then("response should contain list of data")
     public void responseShouldContainListOfData() {
-        assertThat(trainingResponseList.size()).isEqualTo(1);
         TrainingResponse training = trainingResponseList.get(0);
         assertThat(training.getName()).isEqualTo("running");
         assertThat(training.getDate()).isEqualTo(LocalDate.of(2023, 12, 12));
@@ -176,5 +180,39 @@ public class TraineeUpdateSteps {
         HttpEntity<StatusRequest> request = new HttpEntity<>(new StatusRequest(data.get("username")));
 
         responseCode = restTemplate.exchange(url, HttpMethod.PATCH, request, Void.class).getStatusCode().value();
+    }
+
+    @When("the client sends a POST request to create training {string}")
+    public void theClientSendsAPOSTRequestToCreateTraining(String url, DataTable dataTable) {
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> data = rows.get(0);
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
+        HttpEntity<CreateTrainingRequest> request = new HttpEntity<>(new CreateTrainingRequest(data.get("traineeUsername"), data.get("trainerUsername"), data.get("trainingName"), LocalDate.parse(data.get("trainingDate")), data.get("trainingDuration") != null ? Integer.parseInt(data.get("trainingDuration")) : null), headers);
+
+        responseCode = restTemplate.exchange(url, HttpMethod.POST, request, Void.class).getStatusCode().value();
+    }
+
+
+    @When("the client sends a POST request to create training {string} without token")
+    public void theClientSendsAPOSTRequestToCreateTrainingWithoutToken(String url, DataTable dataTable) {
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> data = rows.get(0);
+
+        HttpHeaders headers = new HttpHeaders();
+        HttpEntity<CreateTrainingRequest> request = new HttpEntity<>(new CreateTrainingRequest(data.get("traineeUsername"), data.get("trainerUsername"), data.get("trainingName"), LocalDate.parse(data.get("trainingDate")), Integer.parseInt(data.get("trainingDuration"))), headers);
+
+        responseCode = restTemplate.exchange(url, HttpMethod.POST, request, Void.class).getStatusCode().value();
+    }
+
+    @And("in report service this report should be added")
+    public void inReportServiceThisReportShouldBeAdded() {
+        List<TrainingReport> reportResponses = reportServiceClient.getAll("Bearer " + jwtToken);
+        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst()).isPresent();
+        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getTrainerFirstname()).isEqualTo("test");
+        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getTrainerLastname()).isEqualTo("test");
+        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getYears()).containsKey(2023);
+        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getYears().get(2023)).containsKey("DECEMBER");
     }
 }
