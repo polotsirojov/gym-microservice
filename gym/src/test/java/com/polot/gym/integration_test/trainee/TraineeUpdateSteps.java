@@ -217,4 +217,27 @@ public class TraineeUpdateSteps {
         assertThat(report.get().getYears()).containsKey(2023);
         assertThat(report.get().getYears().get(2023)).containsKey("DECEMBER");
     }
+
+    @And("in report service this report should be added and trainingDuration must be {int}")
+    public void inReportServiceThisReportShouldBeAddedAndTrainingDurationMustBe(int trainingDuration) {
+        List<TrainingReport> reportResponses = reportServiceClient.getAll("Bearer " + jwtToken);
+        Optional<TrainingReport> report = reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst();
+        assertThat(report).isPresent();
+        assertThat(report.get().getTrainerFirstname()).isEqualTo("test");
+        assertThat(report.get().getTrainerLastname()).isEqualTo("test");
+        assertThat(report.get().getYears()).containsKey(2024);
+        assertThat(report.get().getYears().get(2024)).containsKey("JANUARY");
+        assertThat(report.get().getYears().get(2024).get("JANUARY")).isEqualTo(trainingDuration);
+    }
+
+    @And("in report service this report should be added for newtrainer")
+    public void inReportServiceThisReportShouldBeAddedForNewtrainer() {
+        List<TrainingReport> reportResponses = reportServiceClient.getAll("Bearer " + jwtToken);
+        Optional<TrainingReport> report = reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("newtrainer.test")).findFirst();
+        assertThat(report).isPresent();
+        assertThat(report.get().getTrainerFirstname()).isEqualTo("newtrainer");
+        assertThat(report.get().getTrainerLastname()).isEqualTo("test");
+        assertThat(report.get().getYears()).containsKey(2024);
+        assertThat(report.get().getYears().get(2024)).containsKey("FEBRUARY");
+    }
 }

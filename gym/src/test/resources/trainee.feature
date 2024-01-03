@@ -108,6 +108,30 @@ Feature: Trainee API
     Then response status code should be 200
     And in report service this report should be added
 
+  Scenario: Create training for non existing month and year
+    Given the user is authenticated as a trainee
+    When the client sends a POST request to create training "/api/v1/training"
+      | traineeUsername | trainerUsername | trainingName | trainingDate | trainingDuration |
+      | john123.doe     | test.test       | running      | 2024-01-03   | 1                |
+    Then response status code should be 200
+    And in report service this report should be added and trainingDuration must be 1
+
+  Scenario: Create training for non existing month
+    Given the user is authenticated as a trainee
+    When the client sends a POST request to create training "/api/v1/training"
+      | traineeUsername | trainerUsername | trainingName | trainingDate | trainingDuration |
+      | john123.doe     | test.test       | running      | 2024-02-03   | 1                |
+    Then response status code should be 200
+    And in report service this report should be added and trainingDuration must be 1
+
+  Scenario: Create training for non existing trainer
+    Given the user is authenticated as a trainee
+    When the client sends a POST request to create training "/api/v1/training"
+      | traineeUsername | trainerUsername | trainingName | trainingDate | trainingDuration |
+      | john123.doe     | newtrainer.test | running      | 2024-02-03   | 1                |
+    Then response status code should be 200
+    And in report service this report should be added for newtrainer
+
   Scenario: Create training without token
     When the client sends a POST request to create training "/api/v1/training" without token
       | traineeUsername | trainerUsername | trainingName | trainingDate | trainingDuration |
