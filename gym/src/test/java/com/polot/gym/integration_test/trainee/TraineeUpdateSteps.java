@@ -26,6 +26,7 @@ import org.springframework.http.ResponseEntity;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -209,10 +210,11 @@ public class TraineeUpdateSteps {
     @And("in report service this report should be added")
     public void inReportServiceThisReportShouldBeAdded() {
         List<TrainingReport> reportResponses = reportServiceClient.getAll("Bearer " + jwtToken);
-        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst()).isPresent();
-        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getTrainerFirstname()).isEqualTo("test");
-        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getTrainerLastname()).isEqualTo("test");
-        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getYears()).containsKey(2023);
-        assertThat(reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst().get().getYears().get(2023)).containsKey("DECEMBER");
+        Optional<TrainingReport> report = reportResponses.stream().filter(trainingReport -> trainingReport.getTrainerUsername().equals("test.test")).findFirst();
+        assertThat(report).isPresent();
+        assertThat(report.get().getTrainerFirstname()).isEqualTo("test");
+        assertThat(report.get().getTrainerLastname()).isEqualTo("test");
+        assertThat(report.get().getYears()).containsKey(2023);
+        assertThat(report.get().getYears().get(2023)).containsKey("DECEMBER");
     }
 }
