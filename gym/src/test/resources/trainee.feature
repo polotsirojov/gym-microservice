@@ -134,11 +134,11 @@ Feature: Trainee API
 
   Scenario: Create training for existing year and month
     Given the user is authenticated as a trainee
-    When the client sends a POST request to create training "/api/v1/training"
-      | traineeUsername | trainerUsername | trainingName | trainingDate | trainingDuration |
-      | john123.doe     | newtrainer.test | running      | 2024-02-03   | 1                |
+    When the client sends a POST request to create training "/api/v1/training" with new trainer
+      | traineeUsername | trainingName | trainingDate | trainingDuration |
+      | john123.doe     | running      | 2024-02-03   | 1                |
     Then response status code should be 200
-    And in report service this report should be added for newtrainer
+    And in report service this report should be added for newtrainer and trainingDuration must be 2
 
   Scenario: Create training without token
     When the client sends a POST request to create training "/api/v1/training" without token
