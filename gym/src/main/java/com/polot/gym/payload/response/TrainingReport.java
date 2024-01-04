@@ -1,16 +1,16 @@
 package com.polot.gym.payload.response;
 
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-import java.util.List;
+import java.util.Map;
 
 @Data
-public class ReportResponse {
+public class TrainingReport {
+    private String id;
     private String trainerUsername;
     private String trainerFirstname;
     private String trainerLastname;
     private Boolean status;
-    private List<YearResponse> years;
+    private Map<Integer, Map<String, Integer>> years;
+    private String type;
 }
