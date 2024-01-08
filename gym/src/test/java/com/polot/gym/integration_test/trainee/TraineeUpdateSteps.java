@@ -276,6 +276,14 @@ public class TraineeUpdateSteps {
         HttpEntity<CreateTrainingRequest> request = new HttpEntity<>(new CreateTrainingRequest(data.get("traineeUsername"), trainerUsername, data.get("trainingName"), LocalDate.parse(data.get("trainingDate")), data.get("trainingDuration") != null ? Integer.parseInt(data.get("trainingDuration")) : null), headers);
         restTemplate.exchange(url, HttpMethod.POST, request, Void.class);
 
+    }
+
+    @When("the client sends a POST request to create training for existing trainer {string}")
+    public void theClientSendsAPOSTRequestToCreateTrainingForExistingTrainer(String url, DataTable dataTable) {
+        List<Map<String, String>> rows = dataTable.asMaps(String.class, String.class);
+        Map<String, String> data = rows.get(0);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set("Authorization", "Bearer " + jwtToken);
         HttpEntity<CreateTrainingRequest> requestTraining = new HttpEntity<>(new CreateTrainingRequest(data.get("traineeUsername"), trainerUsername, data.get("trainingName"), LocalDate.parse(data.get("trainingDate")), data.get("trainingDuration") != null ? Integer.parseInt(data.get("trainingDuration")) : null), headers);
         responseCode = restTemplate.exchange(url, HttpMethod.POST, requestTraining, Void.class).getStatusCode().value();
 

@@ -137,6 +137,9 @@ Feature: Trainee API
     When the client sends a POST request to create training "/api/v1/training" with new trainer
       | traineeUsername | trainingName | trainingDate | trainingDuration |
       | john123.doe     | running      | 2024-02-03   | 1                |
+    When the client sends a POST request to create training for existing trainer "/api/v1/training"
+      | traineeUsername | trainingName | trainingDate | trainingDuration |
+      | john123.doe     | running      | 2024-02-03   | 1                |
     Then response status code should be 200
     And in report service this report should be added for newtrainer and trainingDuration must be 2
 
